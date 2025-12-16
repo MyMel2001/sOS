@@ -1,0 +1,11 @@
+body { background: #f0f0f0; font-family: Arial; margin: 0; padding: 0; }
+#desktop { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#chat-log { width: 80%; height: 60%; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: white; }
+#input { width: 80%; display: flex; margin-top: 20px; }
+#textbox { flex: 1; padding: 10px; }
+#send { padding: 10px; background: #007bff; color: white; border: none; }
+#mic { padding: 10px; background: #ff0000; color: white; border: none; margin-left: 10px; }
+#editor { display: none; width: 80%; height: 40%; border: 1px solid #ccc; margin-top: 20px; }
+#editor-content { contenteditable: true; height: 100%; padding: 10px; }
+#vibe-btn { padding: 10px; background: #28a745; color: white; }
+#webview { width: 80%; height: 40%; border: 1px solid #ccc; margin-top: 20px; overflow: auto; }

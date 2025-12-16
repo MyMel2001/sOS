@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>sOS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="desktop">
+    <h1 id="computer-name">sOS</h1>
+    <div id="chat-log"></div>
+    <div id="input">
+      <input id="textbox" type="text" placeholder="Talk to agent...">
+      <button id="send">Send</button>
+      <button id="mic">Hold to Talk</button>
+    </div>
+    <!-- WYSIWYG Editor -->
+    <div id="editor">
+      <div id="editor-content"></div>
+      <button id="vibe-btn">Vibe Code</button>
+    </div>
+    <!-- Webview -->
+    <div id="webview"></div>
+  </div>
+
+  <script>
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    // Login/Signup Screen (Initial)
+    function showLogin() {
+      document.body.innerHTML = `
+        <div style="text-align: center; margin-top: 100px;">
+          <h1>sOS Login</h1>
+          <input id="username" placeholder="Username"><br>
+          <input id="password" type="password" placeholder="Password"><br>
+          <button id="login-btn">Login</button>
+          <button id="signup-btn">Signup</button>
+        </div>
+      `;
+      document.getElementById('login-btn').onclick = () => auth('/login');
+      document.getElementById('signup-btn').onclick = () => auth('/signup');
+    }
+
+    async function auth(endpoint) {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const { token } = await res.json();
+        localStorage.setItem('token', token);
+        location.reload(); // Load desktop
+      } else alert('Error');
+    }
+
+    if (!localStorage.getItem('token')) showLogin();
+
+    // Desktop Logic
+    const chatLog = document.getElementById('chat-log');
+    const textbox = document.getElementById('textbox');
+    const send = document.getElementById('send');
+    const mic = document.getElementById('mic');
+    const editor = document.getElementById('editor');
+    const vibeBtn = document.getElementById('vibe-btn');
+    const webview = document.getElementById('webview');
+
+    send.onclick = () => sendMessage(textbox.value);
+    mic.onmousedown = () => recognition.start();
+    mic.onmouseup = () => recognition.stop();
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      textbox.value = transcript;
+      sendMessage(transcript);
+    };
+
+    async function sendMessage(msg) {
+      chatLog.innerHTML += `<p>User: ${msg}</p>`;
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ message: msg })
+      });
+      const { response } = await res.json();
+      chatLog.innerHTML += `<p>Agent: ${response}</p>`;
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      // If msg includes 'edit html', show editor
+      if (msg.toLowerCase().includes('edit html')) editor.style.display = 'block';
+      // If browsing, load proxy
+      if (msg.toLowerCase().includes('browse')) {
+        const url = msg.split('browse ')[1];
+        const proxyRes = await fetch(`/browse?url=${encodeURIComponent(url)}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        webview.innerHTML = await proxyRes.text();
+      }
+    }
+
+    // Vibe-Coding: Send description to agent for HTML gen
+    vibeBtn.onclick = async () => {
+      const desc = prompt('Describe what to make (vibe):');
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ message: `Generate HTML for: ${desc}` })
+      });
+      const { response } = await res.json();
+      document.getElementById('editor-content').innerHTML = response;
+    };
+
+    // Fetch computer name (extra)
+    document.getElementById('computer-name').innerText = COMPUTER_NAME;
+  </script>
+</body>
+</html>
