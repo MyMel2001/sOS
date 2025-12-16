@@ -1,0 +1,31 @@
+{
+  "name": "sos",
+  "version": "1.0.0",
+  "description": "sOS: A web-based AI-powered operating environment",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.0.38",
+    "@langchain/core": "^0.1.47",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "axios": "^1.6.7",
+    "bcryptjs": "^2.4.3",
+    "crypto": "built-in",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "fs": "built-in",
+    "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.1.27",
+    "node-cron": "^3.0.3",
+    "path": "built-in",
+    "puppeteer": "^22.4.1",
+    "quick.db": "^9.1.0",
+    "rss-parser": "^3.13.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
